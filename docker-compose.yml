@@ -1,0 +1,41 @@
+services:
+  # mongodb:
+  #   image: mongo:latest
+  #   container_name: mongodb
+  #   restart: always
+  #   ports:
+  #     - "${MONGODB_PORT}:${MONGODB_PORT}"
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=${MONGODB_USER}
+  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGODB_PASSWORD}
+  #   volumes:
+  #     - mongodb-data:/data/db
+  #   command: ["--replSet", "rs0"]
+
+  # mongodb-setup:
+  #   image: mongo:latest
+  #   depends_on:
+  #     - mongodb
+  #   restart: "no"
+  #   entrypoint: [ "bash", "-c", "sleep 10 && mongo --host mongodb:${MONGODB_PORT} -u ${MONGODB_USER} -p ${MONGODB_PASSWORD} --authenticationDatabase ${MONGODB_ADMIN_DB} --eval 'rs.initiate({_id: \"rs0\", members: [{_id: 0, host: \"mongodb:${MONGODB_PORT}\"}]})'" ]
+
+  clickhouse:
+    image: clickhouse/clickhouse-server:latest
+    container_name: clickhouse
+    ports:
+      - "${CLICKHOUSE_PORT}:${CLICKHOUSE_PORT}"  # HTTP interface
+      - "9000:9000"  # Native protocol port (TCP)
+    volumes:
+      - clickhouse-data:/var/lib/clickhouse
+    environment:
+      - CLICKHOUSE_USER=${CLICKHOUSE_USER}
+      - CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+      - CLICKHOUSE_DB=${CLICKHOUSE_DB}
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+
+volumes:
+  # mongodb-data:
+  clickhouse-data:
